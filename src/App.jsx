@@ -1,8 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
+const PreviewImg = ({ file }) => {
+  const [dataURL, setDataURL] = useState(null);
+
+  useEffect(() => {
+    if (!file) {
+      return;
+    }
+
+    let reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onload = () => {
+      setDataURL(reader.result);
+    };
+
+    reader.onerror = (error) => {
+      console.log(error);
+    };
+  }, [file]);
+
+  return (
+    <div className="image-wrapper">{dataURL && <img src={dataURL} />}</div>
+  );
+};
+
 function App() {
-  const [value, setValue] = useState({ file: null, path: "" });
+  const [data, setData] = useState({ file: null, path: "" });
   const [label, setLabel] = useState(null);
   const [isLoading, setLoading] = useState(false);
 
@@ -10,7 +35,7 @@ function App() {
     const path = e.target.value;
     const file = e.target.files[0];
 
-    setValue((state) => ({ ...state, path, file }));
+    setData((state) => ({ ...state, path, file }));
   };
 
   const getPrediction = async (file) => {
@@ -37,7 +62,7 @@ function App() {
 
   const submit = () => {
     let reader = new FileReader();
-    reader.readAsDataURL(value.file);
+    reader.readAsDataURL(data.file);
 
     reader.onload = () => getPrediction(reader.result);
 
@@ -46,10 +71,11 @@ function App() {
     };
   };
 
-  const isButtonEnabled = value.file || !isLoading ? false : true;
+  const isButtonEnabled = data.file || !isLoading ? false : true;
 
   return (
     <div className="App">
+      <PreviewImg file={data.file} />
       <h1>
         {label ? (
           <>
@@ -61,13 +87,12 @@ function App() {
         )}
       </h1>
       <div className="card">
-        <input
-          type="file"
-          name="image"
-          value={value.path}
-          onChange={onChange}
-        />
-        <button onClick={submit} disabled={isButtonEnabled}>
+        <input type="file" name="image" value={data.path} onChange={onChange} />
+        <button
+          onClick={submit}
+          disabled={isButtonEnabled}
+          style={{ marginLeft: "30px" }}
+        >
           {isLoading ? <>Loading...</> : <>Classify image</>}
         </button>
       </div>
