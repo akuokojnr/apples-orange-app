@@ -32,6 +32,8 @@ function App() {
   const [isLoading, setLoading] = useState(false);
 
   const onChange = (e) => {
+    setLabel(null);
+
     const path = e.target.value;
     const file = e.target.files[0];
 
@@ -87,7 +89,13 @@ function App() {
         )}
       </h1>
       <div className="card">
-        <input type="file" name="image" value={data.path} onChange={onChange} />
+        <input
+          type="file"
+          name="image"
+          accept="image/*"
+          value={data.path}
+          onChange={onChange}
+        />
         <button
           onClick={submit}
           disabled={isButtonEnabled}
